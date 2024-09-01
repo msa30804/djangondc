@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center">Mark Area</h2>
+
+  {% if originate_records %}
+    <div class="row">
+      {% for record in originate_records %}
+        <div class="col-md-12 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">NDC No: {{ record.ndc_no }}</h5>
+              <p class="card-text">
+                <strong>Name:</strong> {{ record.name }}
+              </p>
+              <p class="card-text">
+                <strong>Appointment:</strong> {{ record.appt }}
+              </p>
+              <p class="card-text">
+                <strong>Department:</strong> {{ record.dept }}
+              </p>
+              <p class="card-text">
+                <strong>Created At:</strong> {{ record.created_at }}
+              </p>
+              <!-- Clear Button Form -->
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="record_id" value="{{ record.id }}">
+                <button type="submit">Clear</button>
+            </form>
+            
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">No records found.</p>
+  {% endif %}
+</div>
+{% endblock %}

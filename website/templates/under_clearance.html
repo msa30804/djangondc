@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Clearance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #8bc34a;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #e0e0e0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .sidebar a:hover {
+            background-color: #cfcfcf;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #8bc34a;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .back-button {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            background-color: #ffffff;
+            color: #8bc34a;
+            border: 2px solid #8bc34a;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #f1f8e9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        Under Clearance
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <a href="{% url 'originator' %}">Home</a>
+            <a href="{% url 'pending' %}">Pending</a>
+            <a href="{% url 'under_clearance' %}">Under Clearance</a>
+            <a href="{% url 'adm_clearance' %}">Adm Clearance</a>
+            <a href="{% url 'completed' %}">Completed</a>
+        </div>
+        <div class="content">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NDC No</th>
+                            <th>Name</th>
+                            <th>Appointment</th>
+                            <th>Department</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in under_clearance_requests %}
+                        <tr>
+                            <td>{{ request.ndc_no }}</td>
+                            <td>{{ request.name }}</td>
+                            <td>{{ request.appt }}</td>
+                            <td>{{ request.dept }}</td>
+                            <td>{{ request.created_at }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No requests under clearance.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button positioned at the bottom right -->
+    <a href="{% url 'originator' %}" class="back-button">Back</a>
+
+</body>
+
+</html>
