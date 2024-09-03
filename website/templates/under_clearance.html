@@ -103,37 +103,43 @@
     </div>
 
     <div class="container">
-        <div class="sidebar">
-            <a href="{% url 'originator' %}">Home</a>
-            <a href="{% url 'pending' %}">Pending</a>
-            <a href="{% url 'under_clearance' %}">Under Clearance</a>
-            <a href="{% url 'adm_clearance' %}">Adm Clearance</a>
-            <a href="{% url 'completed' %}">Completed</a>
-        </div>
+        {% include '_sidebar.html' %}
         <div class="content">
+            <!-- Search Form -->
+            <form method="GET" class="search-form" action="">
+                <input type="text" name="search" class="search-input" placeholder="Search..."
+                    value="{{ search_query }}">
+                <button type="submit" class="search-button">Search</button>
+            </form>
+
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>NDC No</th>
+                            <th>HR No</th>
                             <th>Name</th>
                             <th>Appointment</th>
                             <th>Department</th>
                             <th>Created At</th>
+                            <th>Actions</th> <!-- New column for Details button -->
                         </tr>
                     </thead>
                     <tbody>
                         {% for request in under_clearance_requests %}
                         <tr>
-                            <td>{{ request.ndc_no }}</td>
+                            <td>{{ request.hr_no }}</td>
                             <td>{{ request.name }}</td>
                             <td>{{ request.appt }}</td>
                             <td>{{ request.dept }}</td>
                             <td>{{ request.created_at }}</td>
+                            <td>
+                                <a href="{% url 'under_clearance_detail' request.id %}"
+                                    class="details-button">Details</a>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5">No requests under clearance.</td>
+                            <td colspan="6">No requests under clearance.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -141,6 +147,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Back Button positioned at the bottom right -->
     <a href="{% url 'originator' %}" class="back-button">Back</a>

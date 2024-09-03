@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Area Dashboard</title>
+    <title>Pending Marked Requests</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,7 +109,7 @@
 </head>
 <body>
     <div class="header">
-        Mark Area Dashboard
+        Pending Marked Requests
     </div>
     <div class="container">
         <div class="sidebar">
@@ -126,8 +126,8 @@
                     {% endfor %}
                 </div>
             {% endif %}
-
-            {% if originate_records %}
+            
+            {% if pending_requests %}
                 <div class="table-container">
                     <table>
                         <thead>
@@ -137,22 +137,21 @@
                                 <th>Appointment</th>
                                 <th>Department</th>
                                 <th>Created At</th>
-                                <th>Action</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for record in originate_records %}
+                            {% for request in pending_requests %}
                                 <tr>
-                                    <td>{{ record.hr_no }}</td>
-                                    <td>{{ record.name }}</td>
-                                    <td>{{ record.appt }}</td>
-                                    <td>{{ record.dept }}</td>
-                                    <td>{{ record.created_at }}</td>
+                                    <td>{{ request.hr_no }}</td>
+                                    <td>{{ request.name }}</td>
+                                    <td>{{ request.appt }}</td>
+                                    <td>{{ request.dept }}</td>
+                                    <td>{{ request.created_at }}</td>
                                     <td>
-                                        <!-- Clear Button Form -->
-                                        <form method="POST">
+                                        <form method="post" action="{% url 'pending_marked' %}">
                                             {% csrf_token %}
-                                            <input type="hidden" name="record_id" value="{{ record.id }}">
+                                            <input type="hidden" name="record_id" value="{{ request.id }}">
                                             <button type="submit">Clear</button>
                                         </form>
                                     </td>
@@ -162,7 +161,7 @@
                     </table>
                 </div>
             {% else %}
-                <p class="text-center">No records found.</p>
+                <p class="text-center">No pending marked requests.</p>
             {% endif %}
         </div>
     </div>

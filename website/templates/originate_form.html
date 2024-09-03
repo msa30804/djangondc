@@ -27,7 +27,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"] {
+        input[type="text"], select {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -70,8 +70,8 @@
     <form method="POST">
         {% csrf_token %}
         <div class="form-group">
-            {{ form.ndc_no.label_tag }}
-            {{ form.ndc_no }}
+            {{ form.hr_no.label_tag }}
+            {{ form.hr_no }}
         </div>
         <div class="form-group">
             {{ form.name.label_tag }}

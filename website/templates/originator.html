@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,30 +14,7 @@
             position: relative;
             min-height: 100vh;
         }
-        .container {
-            display: flex;
-        }
-        .sidebar {
-            background-color: #e8f5e9;
-            padding: 20px;
-            width: 20%;
-        }
-        .sidebar a {
-            display: block;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-decoration: none;
-            color: #333;
-        }
-        .sidebar a:hover {
-            background-color: #a5d6a7;
-            color: #000;
-        }
-        .content {
-            padding: 20px;
-            width: 80%;
-        }
+
         .header {
             background-color: #8bc34a;
             padding: 15px;
@@ -45,6 +23,46 @@
             font-size: 24px;
             font-weight: bold;
         }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+            /* Full viewport height minus header height */
+        }
+
+        .sidebar {
+            background-color: #e8f5e9;
+            padding: 20px;
+            width: 20%;
+            box-sizing: border-box;
+            /* Include padding in width */
+            overflow-y: auto;
+            /* Allow scrolling if necessary */
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .sidebar a:hover {
+            background-color: #a5d6a7;
+            color: #000;
+        }
+
+        .content {
+            padding: 20px;
+            width: 80%;
+            box-sizing: border-box;
+            /* Include padding in width */
+            overflow: hidden;
+            /* Prevent overflow */
+        }
+
         .back-button {
             position: absolute;
             right: 20px;
@@ -57,42 +75,59 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
+
         .back-button:hover {
             background-color: #f1f8e9;
         }
+
         .table-container {
             margin-top: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             border: 1px solid #ddd;
         }
+
         th {
             background-color: #8bc34a;
             color: white;
         }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
+        .chart-container {
+            margin-top: 20px;
+            height: calc(100% - 60px);
+            /* Adjust height to fit within content area */
+            position: relative;
+        }
+
+        canvas {
+            width: 100% !important;
+            /* Make canvas fit container width */
+            height: 100% !important;
+            /* Make canvas fit container height */
+        }
     </style>
 </head>
+
 <body>
     <div class="header">
         Originator - Landing Screen
     </div>
     <div class="container">
-        <div class="sidebar">
-            <a href="{% url 'originate_form' %}">Originate</a>
-            <a href="{% url 'pending' %}">Pending</a>
-            <a href="{% url 'under_clearance' %}">Under Clearance</a>
-            <a href="{% url 'adm_clearance' %}">Adm Clearance</a>
-            <a href="{% url 'completed' %}">Completed</a>
-        </div>
+        {% include '_sidebar.html' %}
         <div class="content">
+
             <div class="table-container">
                 <table>
                     <thead>
@@ -104,25 +139,112 @@
                     <tbody>
                         <tr>
                             <td>Pending NDC</td>
-                            <td>2</td>
+                            <td>{{ pending_count }}</td>
                         </tr>
                         <tr>
                             <td>Under Clearance</td>
-                            <td>13</td>
+                            <td>{{ under_clearance_count }}</td>
                         </tr>
                         <tr>
                             <td>Adm Cases</td>
-                            <td>4</td>
+                            <td>{{ adm_cases_count }}</td>
                         </tr>
                         <tr>
                             <td>Completed</td>
-                            <td>18</td>
+                            <td>{{ completed_count }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
         </div>
     </div>
     <a href="{% url 'home' %}" class="back-button">Back</a>
+
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Get the data from Django context
+        var pendingCount = {{ pending_count }};
+        var underClearanceCount = {{ under_clearance_count }};
+        var admCasesCount = {{ adm_cases_count }};
+        var completedCount = {{ completed_count }};
+
+        // Create a bar chart with enhanced styling
+        var ctx = document.getElementById('statusChart').getContext('2d');
+        var statusChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Pending NDC', 'Under Clearance', 'Adm Cases', 'Completed'],
+                datasets: [{
+                    label: 'Request Status',
+                    data: [pendingCount, underClearanceCount, admCasesCount, completedCount],
+                    backgroundColor: [
+                        'rgba(139, 195, 74, 0.6)',
+                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(33, 150, 243, 0.6)',
+                        'rgba(156, 39, 176, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(139, 195, 74, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(33, 150, 243, 1)',
+                        'rgba(156, 39, 176, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Allow the chart to resize freely
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#333',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#000',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderColor: '#ddd',
+                            borderWidth: 1
+                        },
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
+
 </html>

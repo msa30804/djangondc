@@ -38,15 +38,13 @@ from .models import  Originate
 class OriginateForm(forms.ModelForm):
     class Meta:
         model = Originate
-        fields = ['ndc_no', 'name', 'appt', 'dept']
+        fields = ['hr_no', 'name', 'appt', 'dept']
         widgets = {
-            'ndc_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter NDC No'}),
+            'hr_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter HR No'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Name'}),
             'appt': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Appointment'}),
-            'dept': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Department'}),
+            'dept': forms.Select(attrs={'class': 'form-control'}),
         }
-
-
 
 
 

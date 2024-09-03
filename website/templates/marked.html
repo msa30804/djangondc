@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Area Dashboard</title>
+    <title>Marked Requests</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,26 +90,11 @@
         button:hover {
             background-color: #7cb342;
         }
-        .messages {
-            margin-bottom: 20px;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-        .alert-success {
-            background-color: #4caf50;
-        }
-        .alert-error {
-            background-color: #f44336;
-        }
     </style>
 </head>
 <body>
     <div class="header">
-        Mark Area Dashboard
+        Marked Requests
     </div>
     <div class="container">
         <div class="sidebar">
@@ -117,17 +102,7 @@
             <a href="{% url 'marked' %}">Marked</a>
         </div>
         <div class="content">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% if originate_records %}
+            {% if marked_requests %}
                 <div class="table-container">
                     <table>
                         <thead>
@@ -137,32 +112,23 @@
                                 <th>Appointment</th>
                                 <th>Department</th>
                                 <th>Created At</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for record in originate_records %}
+                            {% for request in marked_requests %}
                                 <tr>
-                                    <td>{{ record.hr_no }}</td>
-                                    <td>{{ record.name }}</td>
-                                    <td>{{ record.appt }}</td>
-                                    <td>{{ record.dept }}</td>
-                                    <td>{{ record.created_at }}</td>
-                                    <td>
-                                        <!-- Clear Button Form -->
-                                        <form method="POST">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="record_id" value="{{ record.id }}">
-                                            <button type="submit">Clear</button>
-                                        </form>
-                                    </td>
+                                    <td>{{ request.hr_no }}</td>
+                                    <td>{{ request.name }}</td>
+                                    <td>{{ request.appt }}</td>
+                                    <td>{{ request.dept }}</td>
+                                    <td>{{ request.created_at }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             {% else %}
-                <p class="text-center">No records found.</p>
+                <p class="text-center">No marked requests.</p>
             {% endif %}
         </div>
     </div>
