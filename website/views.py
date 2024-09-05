@@ -103,17 +103,39 @@ def pending_view(request):
 
 @login_required
 def completed_view(request):
-    completed_requests = Originate.objects.filter(created_by=request.user, is_completed=True)
+    # Requests that have been cleared by all, including Admin and HR
+    completed_requests = Originate.objects.filter(
+        created_by=request.user,
+        is_completed=True,
+        is_completed_by_adm=True,
+        dept="HR"
+    )
+
     context = {'completed_requests': completed_requests}
     return render(request, 'completed.html', context)
 
+# @login_required
+# def adm_clearance_view(request):
+#     adm_clearance_requests = Originate.objects.filter(created_by=request.user, dept="Administration", is_completed=False)
+#     context = {'adm_clearance_requests': adm_clearance_requests}
+#     return render(request, 'adm_clearance.html', context)
 
 @login_required
 def adm_clearance_view(request):
-    adm_clearance_requests = Originate.objects.filter(created_by=request.user, dept="Administration", is_completed=False)
+    # Requests that have been cleared by all except HR, and Admin hasn't cleared them yet
+    adm_clearance_requests = Originate.objects.annotate(
+        clear_count=Count('cleared_by')
+    ).filter(
+        created_by=request.user,
+        clear_count=10,  # Cleared by all non-Admin, non-HR users
+        is_completed_by_adm=False,
+        is_completed=False
+    ).exclude(
+        dept="HR"
+    )
+
     context = {'adm_clearance_requests': adm_clearance_requests}
     return render(request, 'adm_clearance.html', context)
-
 
 @login_required
 def under_clearance_view(request):
@@ -168,6 +190,8 @@ def under_clearance_detail_view(request, pk):
         'all_departments': ALL_DEPARTMENTS,
     }
     return render(request, 'under_clearance_detail.html', context)
+# Define all departments (you can modify this list as per your requirements)
+ALL_DEPARTMENTS = ['HR', 'Finance', 'IT', 'Administration', 'Marketing', 'Sales','Planning','Media','BT','Planning','Security','Operations','Engineers']
 
 
 ###<---------------------------------------Mark module views---------------------------------->###
@@ -190,7 +214,6 @@ def mark_view(request):
 
 @login_required
 def pending_marked_view(request):
-    # Get requests created by other users that the current user needs to clear
     pending_requests = Originate.objects.exclude(created_by=request.user).filter(is_completed=False).exclude(cleared_by=request.user)
 
     if request.method == 'POST':
@@ -198,12 +221,10 @@ def pending_marked_view(request):
         if record_id:
             record = get_object_or_404(Originate, id=record_id)
             if record.is_completed:
-                # If already completed, do not allow to clear
                 messages.error(request, "Request is already completed.")
             else:
                 # Clear the request
                 record.cleared_by.add(request.user)
-                record.check_completion()  # Check if the record is completed
                 messages.success(request, "Request has been marked as cleared.")
             return redirect('pending_marked')
 
@@ -213,12 +234,9 @@ def pending_marked_view(request):
 
 @login_required
 def marked_view(request):
-    # Get requests that the current user has cleared but are not yet completed
     marked_requests = Originate.objects.filter(cleared_by=request.user, is_completed=False)
     
     context = {'marked_requests': marked_requests}
     return render(request, 'marked.html', context)
 
-
-# Define all departments (you can modify this list as per your requirements)
-ALL_DEPARTMENTS = ['HR', 'Finance', 'IT', 'Administration', 'Marketing', 'Sales','Planning','Media','BT','Planning','Security','Operations','Engineers']
+#new one indicator 

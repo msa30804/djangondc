@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marked Requests</title>
+    <title>Cleared Requests</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -94,12 +94,12 @@
 </head>
 <body>
     <div class="header">
-        Marked Requests
+        Cleared Requests
     </div>
     <div class="container">
         <div class="sidebar">
             <a href="{% url 'pending_marked' %}">Pending</a>
-            <a href="{% url 'marked' %}">Marked</a>
+            <a href="{% url 'marked' %}">Cleared</a>
         </div>
         <div class="content">
             {% if marked_requests %}

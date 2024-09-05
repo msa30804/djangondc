@@ -2,10 +2,10 @@
 <div class="sidebar">
     <a href="{% url 'originator' %}">Home</a>
     {% if request.path == '/originator/' %}
-    <a href="{% url 'originate_form' %}">Originate</a> <!-- Conditionally shown link -->
+    <a href="{% url 'originate_form' %}">Request NDC</a> <!-- Conditionally shown link -->
     {% endif %}
     <a href="{% url 'pending' %}">Pending</a>
     <a href="{% url 'under_clearance' %}">Under Clearance</a>
     <a href="{% url 'adm_clearance' %}">Adm Clearance</a>
-    <a href="{% url 'completed' %}">Completed</a>
+    <a href="{% url 'completed' %}">NDC Cleared</a>
 </div>

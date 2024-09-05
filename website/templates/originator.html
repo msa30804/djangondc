@@ -150,7 +150,7 @@
                             <td>{{ adm_cases_count }}</td>
                         </tr>
                         <tr>
-                            <td>Completed</td>
+                            <td>NDC Cleared</td>
                             <td>{{ completed_count }}</td>
                         </tr>
                     </tbody>
@@ -177,7 +177,7 @@
         var statusChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Pending NDC', 'Under Clearance', 'Adm Cases', 'Completed'],
+                labels: ['Pending NDC', 'Under Clearance', 'Adm Cases', 'Cleared'],
                 datasets: [{
                     label: 'Request Status',
                     data: [pendingCount, underClearanceCount, admCasesCount, completedCount],
