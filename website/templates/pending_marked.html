@@ -109,7 +109,7 @@
 </head>
 <body>
     <div class="header">
-        Pending  Requests
+        Pending Requests
     </div>
     <div class="container">
         <div class="sidebar">
@@ -152,7 +152,34 @@
                                         <form method="post" action="{% url 'pending_marked' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="record_id" value="{{ request.id }}">
-                                            <button type="submit">Clear</button>
+
+                                            <!-- ADM-specific clearance options -->
+                                            {% if is_adm %}
+                                                <label>Gas Clearance:</label>
+                                                <input type="checkbox" name="gas_clearance" value="1"><br>
+                                                
+                                                <label>Electric Clearance:</label>
+                                                <input type="checkbox" name="electric_clearance" value="1"><br>
+
+                                                <label>Security Clearance:</label>
+                                                <input type="checkbox" name="security_clearance" value="1"><br>
+
+                                                <label>Other Clearance:</label>
+                                                <input type="checkbox" name="other_clearance" value="1"><br>
+                                            {% endif %}
+
+                                            <!-- HR-specific clearance view -->
+                                            {% if is_hr %}
+                                                <p>Users who cleared:</p>
+                                                <ul>
+                                                    {% for user in cleared_users.request.id %}
+                                                        <li>{{ user.username }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                                <button type="submit" name="final_clearance" value="1">Final Clearance</button>
+                                            {% else %}
+                                                <button type="submit">Clear</button>
+                                            {% endif %}
                                         </form>
                                     </td>
                                 </tr>
@@ -161,10 +188,9 @@
                     </table>
                 </div>
             {% else %}
-                <p class="text-center">No pending marked requests.</p>
+                <p>No pending marked requests.</p>
             {% endif %}
         </div>
     </div>
-    <a href="{% url 'home' %}" class="back-button">Back</a>
 </body>
 </html>

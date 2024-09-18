@@ -29,17 +29,17 @@ class Originate(models.Model):
 
     def __str__(self):
         return f"{self.hr_no} - {self.name}"
+    
+def check_completion(self):
+    # Count users who have cleared the request
+    cleared_users = self.cleared_by.count()
 
-    def check_completion(self):
-        # Get all users except those in 'Adm' and 'HR' departments
-        # Assuming that we check the users who cleared the request
-        
-        users_involved = User.objects.filter(
-            created_requests__dept__in=['Adm', 'HR']
-        ).distinct()
+    # Determine the required number of users who should clear the request
+    total_users = User.objects.exclude(
+        Q(username='Adm') | Q(username='HR')
+    ).count() + 2  # Adding 2 for ADM and HR
 
-        # Check if all non-admin and non-HR users have cleared the request
-        cleared_count = self.cleared_by.count()
-        if cleared_count >= users_involved.count():
-            self.is_completed = True
-            self.save()
+    if cleared_users >= total_users:
+        self.is_completed = True
+        self.is_completed_by_adm = self.is_completed_by_adm or self.is_completed_by_adm
+        self.save()

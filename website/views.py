@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import OriginateForm
 from .models import Originate
-from django.db.models import Q 
+from django.db.models import Q ,Count
 
 def home(request):
     if request.user.is_authenticated:
@@ -223,12 +223,42 @@ def pending_marked_view(request):
             if record.is_completed:
                 messages.error(request, "Request is already completed.")
             else:
-                # Clear the request
-                record.cleared_by.add(request.user)
-                messages.success(request, "Request has been marked as cleared.")
+                if request.user.username == 'Adm':
+                    gas_clearance = request.POST.get('gas_clearance')
+                    electric_clearance = request.POST.get('electric_clearance')
+                    security_clearance = request.POST.get('security_clearance')
+                    other_clearance = request.POST.get('other_clearance')
+
+                    # Handle ADM user clearances and perform actions based on input
+                    messages.success(request, "ADM has cleared the request with selected options.")
+
+                elif request.user.username == 'HR':
+                    # HR Final Clearance
+                    final_clearance = request.POST.get('final_clearance')
+                    if final_clearance == '1':
+                        record.is_completed = True
+                        record.save()
+                        messages.success(request, "HR has given the final clearance and request is now completed.")
+                    else:
+                        messages.warning(request, "Please confirm final clearance to mark as completed.")
+                else:
+                    # Clear the request for non-HR and non-ADM users
+                    record.cleared_by.add(request.user)
+                    messages.success(request, "Request has been marked as cleared.")
+
             return redirect('pending_marked')
 
-    context = {'pending_requests': pending_requests}
+    # Collect data about who has already cleared the request
+    cleared_users = {
+        req.id: req.cleared_by.all() for req in pending_requests
+    }
+
+    context = {
+        'pending_requests': pending_requests,
+        'is_adm': request.user.username == 'Adm',
+        'is_hr': request.user.username == 'HR',
+        'cleared_users': cleared_users
+    }
     return render(request, 'pending_marked.html', context)
 
 
