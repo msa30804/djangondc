@@ -48,7 +48,7 @@ def originator_view(request):
     # Count admin clearance requests: requests created by the user that are not completed and for the Administration department
     adm_cases_count = Originate.objects.filter(
         created_by=user,
-        dept="Administration",
+        dept="Adm",
         is_completed=False
     ).count()
 
@@ -197,9 +197,15 @@ ALL_DEPARTMENTS = ['HR', 'Finance', 'IT', 'Administration', 'Marketing', 'Sales'
 ###<---------------------------------------Mark module views---------------------------------->###
 @login_required
 def mark_view(request):
+    # Check if the user is Admin (you can also use a role attribute if you have it)
+    if request.user.username == 'Adm':
+        return render(request, 'adm_marked.html', {'marked_requests': Originate.objects.filter(is_completed=False, cleared_by=request.user)})
+    elif request.user.username == 'HR':
+        return render(request, 'hr_marked.html', {'marked_requests': Originate.objects.filter(is_completed=False, cleared_by=request.user)})
+
     # Exclude records created by the logged-in user
     originate_records = Originate.objects.exclude(created_by=request.user).filter(is_completed=False)
-    
+
     if request.method == 'POST':
         record_id = request.POST.get('record_id')
         if record_id:
@@ -214,6 +220,40 @@ def mark_view(request):
 
 @login_required
 def pending_marked_view(request):
+    # Check if the user is Admin (you can also use a role attribute if you have it)
+    if request.user.username == 'Adm':
+        pending_requests = Originate.objects.exclude(created_by=request.user).filter(is_completed=False).exclude(cleared_by=request.user)
+        if request.method == 'POST':
+            record_id = request.POST.get('record_id')
+            if record_id:
+                record = get_object_or_404(Originate, id=record_id)
+                # Update the record with additional fields for ADM clearance
+                record.gas_clearance = request.POST.get('gas_clearance') == 'on'
+                record.electricity_clearance = request.POST.get('electricity_clearance') == 'on'
+                record.other_remarks = request.POST.get('other_remarks')
+                record.cleared_by.add(request.user)
+                messages.success(request, "Request has been marked as cleared.")
+                return redirect('pending_marked')
+
+        return render(request, 'adm_pending_marked.html', {'pending_requests': pending_requests})
+
+    # HR user view
+    if request.user.username == 'HR':
+        pending_requests = Originate.objects.exclude(created_by=request.user).filter(is_completed=False).exclude(cleared_by=request.user)
+        if request.method == 'POST':
+            record_id = request.POST.get('record_id')
+            if record_id:
+                record = get_object_or_404(Originate, id=record_id)
+                # HR additional clearance options
+                record.hr_review = request.POST.get('hr_review')
+                record.hr_remarks = request.POST.get('hr_remarks')
+                record.cleared_by.add(request.user)
+                messages.success(request, "Request has been marked as cleared.")
+                return redirect('hr_pending_marked')
+
+        return render(request, 'hr_pending_marked.html', {'pending_requests': pending_requests})
+
+    # Normal user view
     pending_requests = Originate.objects.exclude(created_by=request.user).filter(is_completed=False).exclude(cleared_by=request.user)
 
     if request.method == 'POST':
@@ -223,50 +263,28 @@ def pending_marked_view(request):
             if record.is_completed:
                 messages.error(request, "Request is already completed.")
             else:
-                if request.user.username == 'Adm':
-                    gas_clearance = request.POST.get('gas_clearance')
-                    electric_clearance = request.POST.get('electric_clearance')
-                    security_clearance = request.POST.get('security_clearance')
-                    other_clearance = request.POST.get('other_clearance')
-
-                    # Handle ADM user clearances and perform actions based on input
-                    messages.success(request, "ADM has cleared the request with selected options.")
-
-                elif request.user.username == 'HR':
-                    # HR Final Clearance
-                    final_clearance = request.POST.get('final_clearance')
-                    if final_clearance == '1':
-                        record.is_completed = True
-                        record.save()
-                        messages.success(request, "HR has given the final clearance and request is now completed.")
-                    else:
-                        messages.warning(request, "Please confirm final clearance to mark as completed.")
-                else:
-                    # Clear the request for non-HR and non-ADM users
-                    record.cleared_by.add(request.user)
-                    messages.success(request, "Request has been marked as cleared.")
-
+                # Clear the request
+                record.cleared_by.add(request.user)
+                messages.success(request, "Request has been marked as cleared.")
             return redirect('pending_marked')
 
-    # Collect data about who has already cleared the request
-    cleared_users = {
-        req.id: req.cleared_by.all() for req in pending_requests
-    }
-
-    context = {
-        'pending_requests': pending_requests,
-        'is_adm': request.user.username == 'Adm',
-        'is_hr': request.user.username == 'HR',
-        'cleared_users': cleared_users
-    }
+    context = {'pending_requests': pending_requests}
     return render(request, 'pending_marked.html', context)
 
 
 @login_required
 def marked_view(request):
+    # Check if the user is Admin
+    if request.user.username == 'Adm':
+        marked_requests = Originate.objects.filter(is_completed=False, cleared_by=request.user)
+        return render(request, 'adm_marked.html', {'marked_requests': marked_requests})
+    # Check if the user is HR
+    elif request.user.username == 'HR':
+        marked_requests = Originate.objects.filter(is_completed=False, cleared_by=request.user)
+        return render(request, 'hr_marked.html', {'marked_requests': marked_requests})
+    
+    # Normal user view
     marked_requests = Originate.objects.filter(cleared_by=request.user, is_completed=False)
     
     context = {'marked_requests': marked_requests}
     return render(request, 'marked.html', context)
-
-#new one indicator 

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Requests</title>
+    <title>Admin Cleared Requests</title>
     <style>
+        /* Style settings same as previously defined */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -36,6 +37,7 @@
         .content {
             padding: 20px;
             width: 80%;
+            position: relative; /* Ensure the content div positions relatively */
         }
         .header {
             background-color: #8bc34a;
@@ -44,21 +46,6 @@
             color: white;
             font-size: 24px;
             font-weight: bold;
-        }
-        .back-button {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            background-color: #ffffff;
-            color: #8bc34a;
-            border: 2px solid #8bc34a;
-            padding: 5px 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .back-button:hover {
-            background-color: #f1f8e9;
         }
         .table-container {
             margin-top: 20px;
@@ -78,38 +65,29 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        button {
+        .back-button {
+            position: fixed; /* Absolute positioning */
+            right: 20px; /* Distance from the right */
+            bottom: 20px; /* Distance from the bottom */
+        }
+        .back-button a {
+            text-decoration: none;
+            color: #8bc34a;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: 2px solid #8bc34a;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .back-button a:hover {
             background-color: #8bc34a;
             color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #7cb342;
-        }
-        .messages {
-            margin-bottom: 20px;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-        .alert-success {
-            background-color: #4caf50;
-        }
-        .alert-error {
-            background-color: #f44336;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        Pending  Requests
+        Admin Cleared Requests
     </div>
     <div class="container">
         <div class="sidebar">
@@ -117,17 +95,7 @@
             <a href="{% url 'marked' %}">Cleared</a>
         </div>
         <div class="content">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            
-            {% if pending_requests %}
+            {% if marked_requests %}
                 <div class="table-container">
                     <table>
                         <thead>
@@ -137,34 +105,30 @@
                                 <th>Appointment</th>
                                 <th>Department</th>
                                 <th>Created At</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for request in pending_requests %}
+                            {% for request in marked_requests %}
                                 <tr>
                                     <td>{{ request.hr_no }}</td>
                                     <td>{{ request.name }}</td>
                                     <td>{{ request.appt }}</td>
                                     <td>{{ request.dept }}</td>
                                     <td>{{ request.created_at }}</td>
-                                    <td>
-                                        <form method="post" action="{% url 'pending_marked' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="record_id" value="{{ request.id }}">
-                                            <button type="submit">Clear</button>
-                                        </form>
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             {% else %}
-                <p class="text-center">No pending marked requests.</p>
+                <p class="text-center">No marked requests found.</p>
             {% endif %}
+
+            <!-- Back Button -->
+            <div class="back-button">
+                <a href="{% url 'home' %}" class="back-button">Back</a>
+            </div>
         </div>
     </div>
-    <a href="{% url 'home' %}" class="back-button">Back</a>
 </body>
 </html>

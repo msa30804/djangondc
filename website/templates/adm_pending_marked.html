@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Requests</title>
+    <title>Admin Pending Requests</title>
     <style>
+        /* Style settings same as previously defined */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -36,6 +37,7 @@
         .content {
             padding: 20px;
             width: 80%;
+            position: relative; /* Ensure the content div positions relatively */
         }
         .header {
             background-color: #8bc34a;
@@ -44,21 +46,6 @@
             color: white;
             font-size: 24px;
             font-weight: bold;
-        }
-        .back-button {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            background-color: #ffffff;
-            color: #8bc34a;
-            border: 2px solid #8bc34a;
-            padding: 5px 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .back-button:hover {
-            background-color: #f1f8e9;
         }
         .table-container {
             margin-top: 20px;
@@ -78,38 +65,47 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        button {
+        .form-section {
+            margin-top: 20px;
+        }
+        .action-button {
             background-color: #8bc34a;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s, transform 0.3s;
+            display: inline-block;
+            font-weight: bold;
         }
-        button:hover {
-            background-color: #7cb342;
+        .action-button:hover {
+            background-color: #66bb6a; /* Darker green on hover */
+            transform: scale(1.05); /* Slight zoom effect */
         }
-        .messages {
-            margin-bottom: 20px;
+        .back-button {
+            position: fixed; /* Absolute positioning */
+            right: 20px; /* Distance from the right */
+            bottom: 20px; /* Distance from the bottom */
         }
-        .alert {
-            padding: 15px;
+        .back-button a {
+            text-decoration: none;
+            color: #8bc34a;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: 2px solid #8bc34a;
             border-radius: 5px;
-            margin-bottom: 10px;
-            color: #fff;
+            transition: background-color 0.3s, color 0.3s;
         }
-        .alert-success {
-            background-color: #4caf50;
-        }
-        .alert-error {
-            background-color: #f44336;
+        .back-button a:hover {
+            background-color: #8bc34a;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        Pending  Requests
+        Admin Pending Requests
     </div>
     <div class="container">
         <div class="sidebar">
@@ -117,16 +113,6 @@
             <a href="{% url 'marked' %}">Cleared</a>
         </div>
         <div class="content">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            
             {% if pending_requests %}
                 <div class="table-container">
                     <table>
@@ -152,7 +138,20 @@
                                         <form method="post" action="{% url 'pending_marked' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="record_id" value="{{ request.id }}">
-                                            <button type="submit">Clear</button>
+                                            <!-- Admin-specific clearance form -->
+                                            <div class="form-section">
+                                                <label for="gas_clearance">Gas Clearance</label>
+                                                <input type="checkbox" name="gas_clearance">
+                                            </div>
+                                            <div class="form-section">
+                                                <label for="electricity_clearance">Electricity Clearance</label>
+                                                <input type="checkbox" name="electricity_clearance">
+                                            </div>
+                                            <div class="form-section">
+                                                <label for="other_remarks">Other Remarks</label>
+                                                <textarea name="other_remarks"></textarea>
+                                            </div>
+                                            <button type="submit" class="action-button">Clear</button> <!-- Updated button style -->
                                         </form>
                                     </td>
                                 </tr>
@@ -163,8 +162,12 @@
             {% else %}
                 <p class="text-center">No pending marked requests.</p>
             {% endif %}
+
+            <!-- Back Button -->
+            <div class="back-button">
+                <a href="{% url 'home' %}" class="back-button">Back</a>
+            </div>
         </div>
     </div>
-    <a href="{% url 'home' %}" class="back-button">Back</a>
 </body>
 </html>
